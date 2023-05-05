@@ -36,6 +36,7 @@ struct ActivityView: View {
     @State private var userInput: String = ""
     @State private var messages: [ChatMessage] = []
     private let openAIClient = OpenAIClient(apiKey: "sk-api-token")
+    private let milvusClient = MilvusClient(host: "localhost", collectionName: "chat_history", port: 19530, dimension: 1537)
     
     var body: some View {
         GeometryReader { geometry in

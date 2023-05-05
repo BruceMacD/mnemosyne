@@ -39,15 +39,11 @@ def embed(texts):
     return [x['embedding'] for x in embeddings['data']]
 
 
-def query(queries, top_k=3):
-    if type(queries) != list:
-        queries = [queries]
-    res = collection.search(embed(queries), anns_field='embedding',
+def query(query, top_k=3):
+    q = [query]  # search expects a list of queries
+    res = collection.search(embed(q), anns_field='embedding',
                             param=QUERY_PARAM, limit=top_k, output_fields=['query'])
-    for i, hit in enumerate(res):
-        print('query:', queries[i])
-        for ii, hits in enumerate(hit):
-            print(hits.entity.get('query'))
+    return res
 
 
 # Connect to Milvus Database
@@ -90,4 +86,8 @@ data.append(embed(data[0]))
 collection.insert(data)
 data = [[]]
 
-query("who is this?")
+res = query("who is this?")
+for i, hit in enumerate(res):
+    print('query:', queries[i])
+    for ii, hits in enumerate(hit):
+        print(hits.entity.get('query'))

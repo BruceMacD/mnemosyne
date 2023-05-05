@@ -16,6 +16,8 @@
 		32C4D8C929FB5CB1005DF76E /* mnemosyneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C4D8C829FB5CB1005DF76E /* mnemosyneTests.swift */; };
 		32C4D8D329FB5CB1005DF76E /* mnemosyneUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C4D8D229FB5CB1005DF76E /* mnemosyneUITests.swift */; };
 		32C4D8D529FB5CB1005DF76E /* mnemosyneUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C4D8D429FB5CB1005DF76E /* mnemosyneUITestsLaunchTests.swift */; };
+		32FD4BD729FF50420057581C /* Milvus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32FD4BD629FF50420057581C /* Milvus.swift */; };
+		32FD4BDA29FF50FB0057581C /* PythonKit in Frameworks */ = {isa = PBXBuildFile; productRef = 32FD4BD929FF50FB0057581C /* PythonKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +50,7 @@
 		32C4D8CE29FB5CB1005DF76E /* mnemosyneUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = mnemosyneUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32C4D8D229FB5CB1005DF76E /* mnemosyneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mnemosyneUITests.swift; sourceTree = "<group>"; };
 		32C4D8D429FB5CB1005DF76E /* mnemosyneUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mnemosyneUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		32FD4BD629FF50420057581C /* Milvus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milvus.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +59,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3284A40729FD6787003365E6 /* OpenAI in Frameworks */,
+				32FD4BDA29FF50FB0057581C /* PythonKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -80,6 +84,7 @@
 			isa = PBXGroup;
 			children = (
 				3284A40929FD6BB3003365E6 /* OpenAI.swift */,
+				32FD4BD629FF50420057581C /* Milvus.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -160,6 +165,7 @@
 			name = mnemosyne;
 			packageProductDependencies = (
 				3284A40629FD6787003365E6 /* OpenAI */,
+				32FD4BD929FF50FB0057581C /* PythonKit */,
 			);
 			productName = mnemosyne;
 			productReference = 32C4D8B329FB5CB0005DF76E /* mnemosyne.app */;
@@ -235,6 +241,7 @@
 			mainGroup = 32C4D8AA29FB5CB0005DF76E;
 			packageReferences = (
 				3284A40529FD6787003365E6 /* XCRemoteSwiftPackageReference "OpenAI" */,
+				32FD4BD829FF50FB0057581C /* XCRemoteSwiftPackageReference "PythonKit" */,
 			);
 			productRefGroup = 32C4D8B429FB5CB0005DF76E /* Products */;
 			projectDirPath = "";
@@ -281,6 +288,7 @@
 				3284A40A29FD6BB3003365E6 /* OpenAI.swift in Sources */,
 				32C4D8B929FB5CB0005DF76E /* ContentView.swift in Sources */,
 				32C4D8B729FB5CB0005DF76E /* mnemosyneApp.swift in Sources */,
+				32FD4BD729FF50420057581C /* Milvus.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -614,6 +622,14 @@
 				minimumVersion = 0.1.2;
 			};
 		};
+		32FD4BD829FF50FB0057581C /* XCRemoteSwiftPackageReference "PythonKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pvieito/PythonKit.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -621,6 +637,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3284A40529FD6787003365E6 /* XCRemoteSwiftPackageReference "OpenAI" */;
 			productName = OpenAI;
+		};
+		32FD4BD929FF50FB0057581C /* PythonKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 32FD4BD829FF50FB0057581C /* XCRemoteSwiftPackageReference "PythonKit" */;
+			productName = PythonKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
