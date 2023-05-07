@@ -18,6 +18,7 @@
 		32C4D8D529FB5CB1005DF76E /* mnemosyneUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C4D8D429FB5CB1005DF76E /* mnemosyneUITestsLaunchTests.swift */; };
 		32FD4BD729FF50420057581C /* Milvus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32FD4BD629FF50420057581C /* Milvus.swift */; };
 		32FD4BDA29FF50FB0057581C /* PythonKit in Frameworks */ = {isa = PBXBuildFile; productRef = 32FD4BD929FF50FB0057581C /* PythonKit */; };
+		32FF4DE22A0761460018D3D5 /* Prompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32FF4DE12A0761460018D3D5 /* Prompt.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,7 @@
 		32C4D8D229FB5CB1005DF76E /* mnemosyneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mnemosyneUITests.swift; sourceTree = "<group>"; };
 		32C4D8D429FB5CB1005DF76E /* mnemosyneUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mnemosyneUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		32FD4BD629FF50420057581C /* Milvus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milvus.swift; sourceTree = "<group>"; };
+		32FF4DE12A0761460018D3D5 /* Prompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Prompt.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +114,7 @@
 		32C4D8B529FB5CB0005DF76E /* mnemosyne */ = {
 			isa = PBXGroup;
 			children = (
+				32FF4DE02A07612F0018D3D5 /* Utils */,
 				3284A40829FD6B7D003365E6 /* Models */,
 				32C4D8B629FB5CB0005DF76E /* mnemosyneApp.swift */,
 				32C4D8B829FB5CB0005DF76E /* ContentView.swift */,
@@ -145,6 +148,14 @@
 				32C4D8D429FB5CB1005DF76E /* mnemosyneUITestsLaunchTests.swift */,
 			);
 			path = mnemosyneUITests;
+			sourceTree = "<group>";
+		};
+		32FF4DE02A07612F0018D3D5 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				32FF4DE12A0761460018D3D5 /* Prompt.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -289,6 +300,7 @@
 				32C4D8B929FB5CB0005DF76E /* ContentView.swift in Sources */,
 				32C4D8B729FB5CB0005DF76E /* mnemosyneApp.swift in Sources */,
 				32FD4BD729FF50420057581C /* Milvus.swift in Sources */,
+				32FF4DE22A0761460018D3D5 /* Prompt.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

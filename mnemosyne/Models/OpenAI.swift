@@ -15,8 +15,15 @@ public class OpenAIClient {
         self.apiKey = apiKey
     }
     
-    public func send(message: String) async throws -> ChatResult {
-        print(message)
+    public func embed(message: String) async throws -> EmbeddingsResult {
+        let configuration = OpenAI.Configuration(token: self.apiKey, timeoutInterval: 60.0)
+        let openAI = OpenAI(configuration: configuration)
+        let query = EmbeddingsQuery(model: .textEmbeddingAda, input: message)
+        let result = try await openAI.embeddings(query: query)
+        return result
+    }
+    
+    public func chat(message: String) async throws -> ChatResult {
         let configuration = OpenAI.Configuration(token: self.apiKey, timeoutInterval: 60.0)
         let openAI = OpenAI(configuration: configuration)
         let query = ChatQuery(model: .gpt3_5Turbo, messages: [.init(role: .user, content: message)])

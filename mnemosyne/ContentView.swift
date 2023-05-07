@@ -35,8 +35,8 @@ struct ChatMessage: Identifiable, Equatable {
 struct ActivityView: View {
     @State private var userInput: String = ""
     @State private var messages: [ChatMessage] = []
-    private let openAIClient = OpenAIClient(apiKey: "sk-api-token")
-    private let milvusClient = MilvusClient(host: "localhost", collectionName: "chat_history", port: 19530, dimension: 1537)
+    private let openAIClient = OpenAIClient(apiKey: "sk-")
+    private let milvusClient = MilvusClient(host: "localhost", collectionName: "chat_history", port: 19530, dimension: 1536)
     
     var body: some View {
         GeometryReader { geometry in
@@ -54,13 +54,13 @@ struct ActivityView: View {
                                 }
                                 
                                 if messages.isEmpty {
-                                    Spacer(minLength: geometry.size.height / 4)
+                                    Spacer(minLength: geometry.size.height / 6)
                                     HStack {
                                         Spacer()
-                                        Image(systemName: "message")
+                                        Image("logo")
                                             .resizable()
                                             .scaledToFit()
-                                            .frame(width: 100, height: 100)
+                                            .frame(width: 250, height: 250)
                                             .foregroundColor(.secondary)
                                         Spacer()
                                     }
@@ -85,7 +85,18 @@ struct ActivityView: View {
                                 let msg = userInput
                                 messages.append(ChatMessage(sender: "You", content: msg, icon: "face.smiling", timestamp: currentTimeAsString()))
                                 userInput = ""
-                                let response = try await openAIClient.send(message: msg)
+                                let embedding = try await openAIClient.embed(message: msg)
+                                milvusClient.insert(query: msg, embedding: embedding)
+                                // find any similar previous queries
+                                let similar = milvusClient.query(embedding: embedding)
+                                for i in 0..<similar.count() {
+                                    let hit = similar.item(at: i)
+                                    for ii in 0..<hit.count() {
+                                        let hits = hit.item(at: ii)
+                                        print(hits.entity.get("query"))
+                                    }
+                                }
+                                let response = try await openAIClient.chat(message: msg)
                                 messages.append(ChatMessage(sender: "ChatGPT", content: response.choices[0].message.content, icon: "face.smiling.fill", timestamp: currentTimeAsString()))
                             } catch {
                                 print("Error sending message: \(error)")
