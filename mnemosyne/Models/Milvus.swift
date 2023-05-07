@@ -94,12 +94,27 @@ public class MilvusClient {
         collection.insert(data)
     }
 
-    func query(embedding: EmbeddingsResult, topK: Int = 3) -> SearchResult {
+    func query(embedding: EmbeddingsResult, topK: Int = 3) -> [String] {
         let embeddingData = embeddedData(embedding: embedding)
         let pythonEmbeddingDataList = Python.list(embeddingData)
         let pythonEmbeddingData = PythonObject([pythonEmbeddingDataList])
-        let res = collection.search(pythonEmbeddingData, anns_field: "embedding", param: QUERY_PARAM, limit: topK, output_fields: ["query"])
-        return SearchResult(queryResult: res)
+        
+        let resp = collection.search(pythonEmbeddingData, anns_field: "embedding", param: QUERY_PARAM, limit: topK, output_fields: ["query"])
+        let searchRes = SearchResult(queryResult: resp)
+        
+        var result = [String]()
+        result.reserveCapacity(topK)
+        for i in 0..<searchRes.count() {
+            let hit = searchRes.item(at: i)
+            for ii in 0..<hit.count() {
+                let hits = hit.item(at: ii)
+                let q = hits.entity.get("query")
+                if let queryString = String(q) {
+                    result.append(queryString)
+                }
+            }
+        }
+        return result
     }
     
     func embeddedData(embedding: EmbeddingsResult) -> PythonObject {

@@ -35,81 +35,135 @@ struct ChatMessage: Identifiable, Equatable {
 struct ActivityView: View {
     @State private var userInput: String = ""
     @State private var messages: [ChatMessage] = []
-    private let openAIClient = OpenAIClient(apiKey: "sk-")
-    private let milvusClient = MilvusClient(host: "localhost", collectionName: "chat_history", port: 19530, dimension: 1536)
+    @State private var responsePending = false
+    @State private var apiKey: String = ""
+    
+    private let openAIClient: OpenAIClient
+    private let milvusQueryClient = MilvusClient(host: "localhost", collectionName: "query_history", port: 19530, dimension: 1536)
+    private let milvusReplyClient = MilvusClient(host: "localhost", collectionName: "response_history", port: 19530, dimension: 1536)
+    
+    init() {
+        if let savedApiKey = UserDefaults.standard.string(forKey: "apiKey") {
+            openAIClient = OpenAIClient(apiKey: savedApiKey)
+        } else {
+            openAIClient = OpenAIClient(apiKey: "")
+        }
+    }
     
     var body: some View {
         GeometryReader { geometry in
             ScrollViewReader { scrollProxy in
                 VStack {
                     ScrollView {
-                        GeometryReader { innerGeometry in
-                            VStack {
-                                if messages.isEmpty {
-                                    Spacer(minLength: innerGeometry.size.height / 2 - 50)
+                        VStack {
+                            Spacer(minLength: 0)
+                                            
+                            ForEach(messages) { message in
+                                ChatBubbleView(chatMessage: message)
+                            }
+                                            
+                            if responsePending {
+                                HStack {
+                                    Spacer()
+                                    LoadingDots()
+                                    Spacer()
                                 }
-                                
-                                ForEach(messages) { message in
-                                    ChatBubbleView(chatMessage: message)
-                                }
-                                
-                                if messages.isEmpty {
-                                    Spacer(minLength: geometry.size.height / 6)
-                                    HStack {
-                                        Spacer()
-                                        Image("logo")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 250, height: 250)
-                                            .foregroundColor(.secondary)
-                                        Spacer()
-                                    }
+                            }
+                            
+                            if messages.isEmpty {
+                                Spacer(minLength: geometry.size.height / 6)
+                                HStack {
+                                    Spacer()
+                                    Image("logo")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 250, height: 250)
+                                        .foregroundColor(.secondary)
+                                    Spacer()
                                 }
                             }
                         }
                         .id(messages.last?.id)
                         .padding()
-                    }
-                    .frame(height: geometry.size.height * 4/5)
-                    .onChange(of: messages) { _ in
+                        }
+                        .frame(height: geometry.size.height * 4/5)
+                        .onChange(of: messages) { _ in
                         withAnimation {
                             if let lastMessageID = messages.last?.id {
                                 scrollProxy.scrollTo(lastMessageID, anchor: .bottom)
                             }
                         }
                     }
-                    
-                    MultilineTextField(text: $userInput, buttonAction: {
-                        Task {
-                            do {
-                                let msg = userInput
-                                messages.append(ChatMessage(sender: "You", content: msg, icon: "face.smiling", timestamp: currentTimeAsString()))
-                                userInput = ""
-                                let embedding = try await openAIClient.embed(message: msg)
-                                milvusClient.insert(query: msg, embedding: embedding)
-                                // find any similar previous queries
-                                let similar = milvusClient.query(embedding: embedding)
-                                for i in 0..<similar.count() {
-                                    let hit = similar.item(at: i)
-                                    for ii in 0..<hit.count() {
-                                        let hits = hit.item(at: ii)
-                                        print(hits.entity.get("query"))
-                                    }
-                                }
-                                let response = try await openAIClient.chat(message: msg)
-                                messages.append(ChatMessage(sender: "ChatGPT", content: response.choices[0].message.content, icon: "face.smiling.fill", timestamp: currentTimeAsString()))
-                            } catch {
-                                print("Error sending message: \(error)")
-                            }
+                    if openAIClient.apiKey == "" {
+                        TextField("Enter OpenAI API Key", text: $apiKey)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .padding()
+                        
+                        Button(action: {
+                            UserDefaults.standard.set(apiKey, forKey: "apiKey")
+                            openAIClient.apiKey = apiKey
+                        }) {
+                            Text("Submit")
+                                .padding()
+                                .cornerRadius(8)
                         }
-                    })
-                    .frame(height: geometry.size.height * 1/5)
+                    } else {
+                        MultilineTextField(text: $userInput, buttonAction: {
+                            Task {
+                                do {
+                                    responsePending = true
+                                    let msg = userInput
+                                    messages.append(ChatMessage(sender: "You", content: msg, icon: "face.smiling", timestamp: currentTimeAsString()))
+                                    userInput = ""
+                                    
+                                    let embedding = try await openAIClient.embed(message: msg)
+                                    milvusQueryClient.insert(query: msg, embedding: embedding)
+                                    // find any similar previous queries and responses
+                                    let similarQs = milvusQueryClient.query(embedding: embedding)
+                                    let similarReplies = milvusReplyClient.query(embedding: embedding)
+                                    
+                                    let prompt = Prompt.createPrompt(questions: similarQs, replies: similarReplies, sanitizedQuery: msg)
+                        
+                                    let response = try await openAIClient.chat(message: prompt)
+                                    let respMsg = response.choices[0].message.content
+                                    responsePending = false
+                                    messages.append(ChatMessage(sender: "ChatGPT", content: respMsg, icon: "face.smiling.fill", timestamp: currentTimeAsString()))
+                                    let respEmbedding = try await openAIClient.embed(message: respMsg)
+                                    milvusReplyClient.insert(query: respMsg, embedding: respEmbedding)
+                                } catch {
+                                    print("Error sending message: (error)")
+                                }
+                                responsePending = false
+                            }
+                        })
+                        .frame(height: geometry.size.height * 1/5)
+                    }
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }
 }
+
+struct LoadingDots: View {
+    @State private var animationIndex = 0
+
+    var body: some View {
+        HStack {
+            ForEach(0..<3) { index in
+                Circle()
+                    .frame(width: 10, height: 10)
+                    .foregroundColor(Color.white.opacity(animationIndex == index ? 1.0 : 0.2))
+                    .animation(Animation.easeInOut(duration: 0.5).repeatForever().delay(Double(index) * 0.2), value: animationIndex)
+            }
+        }
+        .onAppear {
+            Timer.scheduledTimer(withTimeInterval: 0.6, repeats: true) { _ in
+                animationIndex = (animationIndex + 1) % 3
+            }
+        }
+    }
+}
+
 
 struct MultilineTextField: View {
     @Binding var text: String
@@ -128,10 +182,8 @@ struct MultilineTextField: View {
                     Spacer()
                     
                     Button(action: {
-                        isLoading = true
                         Task {
                             await buttonAction()
-                            isLoading = false
                         }
                     }) {
                         Image(systemName: isLoading ? "" : "arrow.up.circle.fill")
@@ -140,17 +192,6 @@ struct MultilineTextField: View {
                             .foregroundColor(Color(NSColor.systemPink))
                             .frame(width: 24, height: 24)
                             .background(Color.clear)
-                            .overlay(
-                                Group {
-                                    if isLoading {
-                                        ProgressView()
-                                            .progressViewStyle(CircularProgressViewStyle(tint: Color(NSColor.systemPink)))
-                                            .frame(width: 24, height: 24)
-                                    } else {
-                                        EmptyView()
-                                    }
-                                }
-                            )
                     }
                     .buttonStyle(PlainButtonStyle())
                     .onHover { isHovered in

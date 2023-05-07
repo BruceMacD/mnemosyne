@@ -15,12 +15,14 @@ class Prompt {
         // TODO: limit lengths
         
         let prompt = """
-        Given the questions I have asked previously (in the questions section), and your previous replies (in the replied section), answer my new question.
-        Questions section:
+        Given the queries I have asked previously (in the previous section), and your replies (in the replied section), answer my new query.
+        Previous section:
         \(questionsText)
+        
         Replied section:
         \(repliedText)
-        Question:
+        
+        New query:
         \(sanitizedQuery)
         """
         
