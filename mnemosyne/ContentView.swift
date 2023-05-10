@@ -122,7 +122,7 @@ struct ActivityView: View {
                                     let similarQs = milvusQueryClient.query(embedding: embedding)
                                     let similarReplies = milvusReplyClient.query(embedding: embedding)
                                     
-                                    let prompt = Prompt.createPrompt(questions: similarQs, replies: similarReplies, sanitizedQuery: msg)
+                                    let prompt = Prompt.createPrompt(questions: similarQs, replies: similarReplies, query: msg)
                         
                                     let response = try await openAIClient.chat(message: prompt)
                                     let respMsg = response.choices[0].message.content
