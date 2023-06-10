@@ -12,7 +12,9 @@ Mnemosyne is a long term memory for ChatGPT.
 </div>
 Mnemosyne operates by storing all of its conversations in a local vector database known as Milvus. To create a contextual understanding, it utilizes the OpenAI API to extract embeddings from these conversations. Stored within Milvus, these embeddings enable Mnemosyne to retrieve past messages that bear similarity to the current context. The system then improves the input query by adding context before forwarding it to the ChatGPT API.
 
-# Running
+# How to Install
+
+To run mnemosyne you must install the Python dependencies, Milvus, and build the project with Xcode.
 
 ## Install Dependencies
 
@@ -25,3 +27,8 @@ pip3 install -r setup/requirements.txt
 ```
 docker-compose -f ./setup/docker-compose.yaml up -d
 ```
+
+## Build and Run in Xcode
+- Open mnemosyne.xcodeproj in the root of cloned project.
+- Change signing team and Bundle Identifier.
+- Build the app.
